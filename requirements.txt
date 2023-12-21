@@ -1,0 +1,7 @@
+python-dotenv
+pymysql
+argparse
+ray
+requests
+pandas
+numpy
