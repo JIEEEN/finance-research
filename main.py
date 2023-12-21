@@ -3,22 +3,38 @@ import pandas as pd
 import requests
 import ray
 import time
+import argparse
+import warnings
+
 from bs4 import BeautifulSoup
 
 from finance_research import utils, sise
 
+warnings.simplefilter('ignore')
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-m', '--mode', help='init_mode or update_mode')
+
+
+args = parser.parse_args()
+
 ray.init()
-logging.basicConfig(format='{%(asctime)s} [%(levelname)-8s] %(message)s', 
-                    datefmt='%m/%d %I:%M:%S %p', level=logging.DEBUG)
+utils.setup_logging()
 
-df = utils.read_excel('data/data.xlsx')
-ticker_list = utils.get_ticker_list(df)
+if __name__ == "__main__":
+    if args.mode == "init":
+        df = utils.read_excel('data/data.xlsx')
+        ticker_list = utils.get_ticker_list(df)
 
+        sise_parser = sise.SiseParser.remote()
 
+        res = ray.get([sise_parser.get_stock_data.remote(ticker) for ticker in ticker_list])
+    elif args.mode == "update":
+        pass
+    elif args.mode == "debug":
+        df = utils.read_excel('data/data.xlsx')
+        ticker_list = utils.get_ticker_list(df)
 
-logging.info("Get last page")
-tt = time.time()
-parser = sise.SiseParser.remote()
+        sise_parser = sise.SiseParser.remote()
 
-last_page_list = ray.get([parser.get_last_page.remote(ticker) for ticker in ticker_list])
-logging.debug(f"Get last page execution time : {time.time() - tt}")
+        res = ray.get([sise_parser.get_stock_data.remote(ticker) for ticker in ticker_list[:3]])
