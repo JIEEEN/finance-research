@@ -5,6 +5,8 @@ import dotenv
 import logging
 import ray
 
+import finance_research.utils as utils
+
 dotenv.load_dotenv()
 
 db_config = {
@@ -31,31 +33,27 @@ class StockDB:
                 cursor.execute(create_table_query)
 
             self.conn.commit()
-        except:
-            logging.error("Error occurred while create table")
+        except Exception as e:
+            logging.error(f"Error occurred while create table: {e}")
             self.conn.close()
             sys.exit(-1)
-        finally:
-            self.conn.close()
 
     def insert_data(self, ticker: str, stock_data: tuple):
         date, open_, high, low, close, volume = stock_data
-        print(len(date), len(open_), len(high), len(low), len(close), len(volume))
-
         assert len(date) == len(open_) == len(high) == len(low) == len(close) == len(volume), "List Length does not match"
 
+        stock_data = utils.preprocess_data(stock_data)
+        date, open_, high, low, close, volume = stock_data
         try:
             with self.conn.cursor() as cursor:
                 for i in range(len(date)):
                     insert_data_query = f"""
-                        insert into c{ticker} values (STR_TO_DATE(%s, '%Y-%m-%d'), %s, %s, %s, %s, %s);
+                        insert into c{ticker} values (%s, %s, %s, %s, %s, %s);
                     """
                     cursor.execute(insert_data_query, (date[i], open_[i], high[i], low[i], close[i], volume[i]))
             
             self.conn.commit()
-        except:
-            logging.error("Error occurred while insert data into table")
+        except Exception as e:
+            logging.error(f"Error occurred while insert data into table: {e}")
             self.conn.close()
             sys.exit(-1)
-        finally:
-            self.conn.close()

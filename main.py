@@ -8,13 +8,15 @@ import warnings
 
 from bs4 import BeautifulSoup
 
-from finance_research import utils, sise, db
+import finance_research.utils as utils
+import finance_research.sise as sise
+import finance_research.db as db
 
 warnings.simplefilter('ignore')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-m', '--mode', help='init_mode or update_mode')
-parser.add_argument('--batch_size', help='set batch_size for get data parallel')
+parser.add_argument('-m', '--mode', default='debug', help='init_mode or update_mode')
+parser.add_argument('--batch_size', default=10, help='set batch_size for get data parallel')
 
 args = parser.parse_args()
 
@@ -23,6 +25,7 @@ utils.setup_logging()
 
 
 if __name__ == "__main__":
+    DEBUG_TEST_NUM = 3
     stockDB = db.StockDB()
 
     if args.mode == "init":
@@ -39,6 +42,10 @@ if __name__ == "__main__":
             batch_res = ray.get([s.get_stock_data.remote() for s in sise_parsers])
             res.extend(batch_res)
 
+        for i in range(len(ticker_list)):
+            stockDB.create_table(ticker_list[i])
+            stockDB.insert_data(ticker_list[i], res[i])
+
         ray.shutdown()
         logging.debug(f"Get all stock data execution time: {time.time() - tt}")
     elif args.mode == "update":
@@ -51,9 +58,13 @@ if __name__ == "__main__":
         ticker_list = utils.get_ticker_list(df)
         
         res = []
-        sise_parsers = [sise.SiseParser.remote(ticker) for ticker in ticker_list[:1]] # only use three stock data for debug mode
+        sise_parsers = [sise.SiseParser.remote(ticker) for ticker in ticker_list[:DEBUG_TEST_NUM]] # only use three stock data for debug mode
         batch_res = ray.get([s.get_stock_data.remote() for s in sise_parsers])
         res.extend(batch_res)
+
+        for i in range(DEBUG_TEST_NUM):
+            stockDB.create_table(ticker_list[i])
+            stockDB.insert_data(ticker_list[i], res[i])
 
         ray.shutdown()
         logging.debug(f"Get all stock data execution time: {time.time() - tt}")
