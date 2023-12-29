@@ -67,6 +67,8 @@ if __name__ == "__main__":
         batch_res = ray.get([s.get_stock_data.remote() for s in sise_parsers])
         res.extend(batch_res)
 
+        res = [utils.preprocess_data(data) for data in res]
+
         for i in range(DEBUG_TEST_NUM):
             stockDB.create_table(ticker_list[i])
             stockDB.insert_data(ticker_list[i], res[i])

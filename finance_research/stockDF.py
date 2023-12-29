@@ -1,6 +1,7 @@
 import pandas as pd
 import logging
 from datetime import datetime, timedelta
+import mplfinance as mpf
 
 import finance_research.utils as utils
 
@@ -13,6 +14,7 @@ class StockDF:
 
         self.stock_df = None
         self.convert_to_df()
+        self.stock_df.sort_index(inplace=True)
 
     def convert_to_df(self):
         logging.info("Convert Stock data to DataFrame")
@@ -22,6 +24,7 @@ class StockDF:
             columns=['date', 'open', 'high', 'low', 'close', 'volume']
         )
         self.stock_df.set_index('date', inplace=True)
+        self.stock_df.index = pd.to_datetime(self.stock_df.index)
 
     def stock_duration(self, start_date: str, end_date: str):
         logging.info(f"Get Stock Data from {start_date} to {end_date}")
@@ -32,32 +35,52 @@ class StockDF:
         utils.convert_date_format(start_date)
         utils.convert_date_format(end_date)
 
-        return self.stock_df.loc[end_date: start_date]
+        return self.stock_df.loc[start_date: end_date]
+    
+    def stock_year(self):
+        recent_date = self.stock_df.index[-1]
+        recent_date_str = recent_date.strftime("%Y.%m.%d")
 
-    def stock_one_month(self):
-        recent_date = self.stock_df.index[0]
+        dt_recent_date = datetime.strptime(recent_date_str, "%Y.%m.%d")
 
-        dt_recent_date = datetime.strptime(recent_date, "%Y.%m.%d")
+        before_one_year = dt_recent_date - timedelta(days=365)
 
-        before_one_month = dt_recent_date - timedelta(days=28)
+        return self.stock_duration(before_one_year.strftime("%Y.%m.%d"), recent_date_str)
 
-        return self.stock_duration(before_one_month.strftime("%Y.%m.%d"), recent_date)
 
-    def stock_one_week(self):
-        recent_date = self.stock_df.index[0]
+    def stock_month(self):
+        recent_date = self.stock_df.index[-1]
+        recent_date_str = recent_date.strftime("%Y.%m.%d")
 
-        dt_recent_date = datetime.strptime(recent_date, "%Y.%m.%d")
+        dt_recent_date = datetime.strptime(recent_date_str, "%Y.%m.%d")
+
+        before_one_month = dt_recent_date - timedelta(days=30)
+
+        return self.stock_duration(before_one_month.strftime("%Y.%m.%d"), recent_date_str)
+
+    def stock_week(self):
+        recent_date = self.stock_df.index[-1]
+        recent_date_str = recent_date.strftime("%Y.%m.%d")
+
+        dt_recent_date = datetime.strptime(recent_date_str, "%Y.%m.%d")
 
         before_one_week = dt_recent_date - timedelta(days=7)
 
-        return self.stock_duration(before_one_week.strftime("%Y.%m.%d"), recent_date)
+        return self.stock_duration(before_one_week.strftime("%Y.%m.%d"), recent_date_str)
         
-    def stock_one_day(self):
-        recent_date = self.stock_df.index[0]
+    def stock_day(self):
+        recent_date = self.stock_df.index[-1]
 
         return self.stock_df.loc[recent_date]
 
-    def reverse_order_df(self):
-        self.stock_df.sort_index(ascending=False, inplace=True)
+    def plot(self, duration: str):
+        if duration == "year":
+            mpf.plot(self.stock_year(), type='line')
+        elif duration == "month":
+            mpf.plot(self.stock_month(), type='candle')
+        elif duration == "week":
+            mpf.plot(self.stock_week(), type='candle')
+        elif duration == "day":
+            mpf.plot(self.stock_day(), type='candle')
 
     

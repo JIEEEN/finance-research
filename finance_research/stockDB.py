@@ -42,8 +42,6 @@ class StockDB:
         date, open_, high, low, close, volume = stock_data
         assert len(date) == len(open_) == len(high) == len(low) == len(close) == len(volume), "List Length does not match"
 
-        stock_data = utils.preprocess_data(stock_data)
-        date, open_, high, low, close, volume = stock_data
         try:
             with self.conn.cursor() as cursor:
                 for i in range(len(date)):
