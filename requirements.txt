@@ -7,3 +7,7 @@ pandas
 numpy
 cryptography
 datetime
+pysimplegui
+matplotlib
+mplfinance
+pandas

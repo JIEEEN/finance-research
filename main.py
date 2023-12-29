@@ -10,7 +10,8 @@ from bs4 import BeautifulSoup
 
 import finance_research.utils as utils
 import finance_research.sise as sise
-import finance_research.db as db
+import finance_research.stockDB as stockDB
+import finance_research.stockDF as stockDF
 
 warnings.simplefilter('ignore')
 
@@ -25,8 +26,8 @@ utils.setup_logging()
 
 
 if __name__ == "__main__":
-    DEBUG_TEST_NUM = 3
-    stockDB = db.StockDB()
+    DEBUG_TEST_NUM = 1
+    stockDB = stockDB.StockDB()
 
     if args.mode == "init":
         logging.info("Start to get All stock Data for initiate")
@@ -56,6 +57,10 @@ if __name__ == "__main__":
         
         df = utils.read_excel('data/data.xlsx')
         ticker_list = utils.get_ticker_list(df)
+
+        with open("ticker.txt", 'w') as f:
+            for data in ticker_list:
+                f.write(str(data) + '\n')
         
         res = []
         sise_parsers = [sise.SiseParser.remote(ticker) for ticker in ticker_list[:DEBUG_TEST_NUM]] # only use three stock data for debug mode

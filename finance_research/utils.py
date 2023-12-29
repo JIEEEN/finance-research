@@ -3,6 +3,7 @@ from typing import List
 import logging
 from datetime import datetime
 import numpy as np
+import re
 
 def setup_logging():
     logging.basicConfig(format='{%(asctime)s} [%(levelname)-8s] %(message)s', 
@@ -35,3 +36,20 @@ def preprocess_data(stock_data: tuple):
     stock_data = p_date, p_open_, p_high, p_low, p_close, p_volume
 
     return stock_data
+
+def check_date_format(date: str):
+    pattern = re.compile(r'^\d{4}[-.]\d{2}[-.]\d{2}$')
+
+    if pattern.match(date):
+        return True
+    else: return False
+
+def convert_date_format(date: str):
+    pattern = re.compile(r'^\d{4}[-]\d{2}[-]\d{2}$')
+
+    if pattern.match(date):
+        date = date.replace('-', '.')
+        return date
+    else: return date
+
+    
