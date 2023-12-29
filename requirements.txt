@@ -11,3 +11,4 @@ pysimplegui
 matplotlib
 mplfinance
 pandas
+bs4
