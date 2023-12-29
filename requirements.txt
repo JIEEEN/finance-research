@@ -12,3 +12,5 @@ matplotlib
 mplfinance
 pandas
 bs4
+openpyxl
+lxml
