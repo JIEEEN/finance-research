@@ -38,6 +38,22 @@ class SiseParser:
         logging.info("Get Stock Data")
         tt = time.time()
 
+        def remove_zero_from_list(bs4_res, date_len):
+            res = []
+            diff_idx = 0
+
+            for data in bs4_res:
+                if diff_idx % 6 == 1:
+                    if data.text != '0':
+                        res.append(data.text)
+                        diff_idx += 1
+                    diff_idx += 1
+                else: 
+                    res.append(data.text)
+                    diff_idx += 1
+
+            return res
+
         date, open_, high, low, close, volume = np.array([]), np.array([]), np.array([]), np.array([]), np.array([]), np.array([])
         for i in range(1, int(self.last_page)+1):
             self.html = requests.get(self.sise_url + self.ticker + '&page={}'.format(i), headers=self.headers).text
@@ -45,6 +61,8 @@ class SiseParser:
             date = np.append(date, self.stock_date(i, self.html, self.bs))
             
             res = self.bs.find_all('span', class_='tah p11')
+            res = remove_zero_from_list(res, len(date))
+
             open_ = np.append(open_, self.stock_open(res))
             high = np.append(high, self.stock_high(res))
             low = np.append(low, self.stock_low(res))
@@ -64,26 +82,26 @@ class SiseParser:
         return np.array(date)
 
     def stock_close(self, bs4_res)-> np.array:
-        close = [_close.text for _close in bs4_res[0::5]]
+        close = [_close for _close in bs4_res[0::5]]
 
         return np.array(close)
 
     def stock_open(self, bs4_res)-> np.array:
-        open_ = [_open.text for _open in bs4_res[1::5]]
+        open_ = [_open for _open in bs4_res[1::5]]
 
         return np.array(open_)
 
     def stock_high(self, bs4_res)-> np.array:
-        high = [_high.text for _high in bs4_res[2::5]]
+        high = [_high for _high in bs4_res[2::5]]
 
         return np.array(high)
 
     def stock_low(self, bs4_res)-> np.array:
-        low = [_low.text for _low in bs4_res[3::5]]
+        low = [_low for _low in bs4_res[3::5]]
 
         return np.array(low)
 
     def stock_volume(self, bs4_res)-> np.array:
-        volume = [_volume.text for _volume in bs4_res[4::5]]
+        volume = [_volume for _volume in bs4_res[4::5]]
 
         return np.array(volume)
