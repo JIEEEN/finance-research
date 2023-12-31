@@ -27,7 +27,6 @@ utils.setup_logging()
 
 
 if __name__ == "__main__":
-    DEBUG_TEST_NUM = 5
     stockDB = stockDB.StockDB()
 
     if args.mode == "init":
@@ -48,6 +47,9 @@ if __name__ == "__main__":
             stockDB.create_table(ticker_list[i])
             stockDB.insert_data(ticker_list[i], res[i])
 
+        gui = stockGUI.StockGUI(ticker_list, res)
+        gui.run()
+
         ray.shutdown()
         logging.debug(f"Get all stock data execution time: {time.time() - tt}")
     elif args.mode == "update":
@@ -55,9 +57,11 @@ if __name__ == "__main__":
     elif args.mode == "debug":
         logging.info("Start to get All stock Data for initiate")
         tt = time.time()
+        DEBUG_TEST_NUM = 5
         
         df = utils.read_excel('data/data.xlsx')
         ticker_list = utils.get_ticker_list(df)
+        ticker_names = utils.get_ticker_names(df)
 
         with open("ticker.txt", 'w') as f:
             for data in ticker_list:
@@ -74,7 +78,7 @@ if __name__ == "__main__":
             stockDB.create_table(ticker_list[i])
             stockDB.insert_data(ticker_list[i], res[i])
             
-        gui = stockGUI.StockGUI(ticker_list[:DEBUG_TEST_NUM], res)
+        gui = stockGUI.StockGUI(ticker_list[:DEBUG_TEST_NUM], ticker_names[:DEBUG_TEST_NUM], res)
         gui.run()
 
         ray.shutdown()

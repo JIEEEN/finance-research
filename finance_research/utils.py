@@ -20,6 +20,11 @@ def get_ticker_list(df: pd.DataFrame)-> List:
 
     return list(ticker_list)
 
+def get_ticker_names(df: pd.DataFrame)-> List:
+    ticker_names = df["종목명"]
+    
+    return list(ticker_names)
+
 def preprocess_data(stock_data: tuple):
     date, open_, high, low, close, volume = stock_data
 

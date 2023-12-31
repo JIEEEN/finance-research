@@ -6,8 +6,9 @@ import logging
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import finance_research.stockDF as stockDF
 class StockGUI:
-    def __init__(self, ticker_list: list, stock_datas: list):
+    def __init__(self, ticker_list: list, ticker_names: list, stock_datas: list):
         self.ticker_list = ticker_list
+        self.ticker_names = ticker_names
         self.stock_df = None
         
         self.w_width = 1000
@@ -20,10 +21,17 @@ class StockGUI:
     def set_stock_df(self, stock_df):
         self.stock_df = stock_df
         
+    def integrate_ticker_and_names(self):
+        ticker_and_names = []
+        for ticker, names in zip(self.ticker_list, self.ticker_names):
+            ticker_and_names.append(ticker + ' ' + names)
+        
+        return ticker_and_names
+        
     def run(self):
         sg.theme('LightGray2')
         self.ticker_list_box = [
-            [sg.Listbox(values=self.ticker_list, enable_events=True, 
+            [sg.Listbox(values=self.integrate_ticker_and_names(), enable_events=True, 
                         size=(30, 30), key='TICKER_LIST')]
         ]
         self.duration_tab_group = [[
@@ -44,7 +52,7 @@ class StockGUI:
         
         while True:
             event, values = window.read()
-            choice = values['TICKER_LIST'][0]
+            choice = values['TICKER_LIST'][0].split(' ')[0]
             
             ticker_idx = self.ticker_list.index(choice)
             stock_data = self.stock_datas[ticker_idx]
