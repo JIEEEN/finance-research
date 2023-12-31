@@ -163,3 +163,4 @@ cython_debug/
 # edit
 .env
 ticker.txt
+test.*

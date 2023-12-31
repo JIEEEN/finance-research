@@ -70,17 +70,12 @@ class StockDF:
         
     def stock_day(self):
         recent_date = self.stock_df.index[-1]
+        recent_date_str = recent_date.strftime("%Y.%m.%d")
+        
+        dt_recent_date = datetime.strptime(recent_date_str, "%Y.%m.%d")
+        
+        before_one_day = dt_recent_date - timedelta(days=1)
 
-        return self.stock_df.loc[recent_date]
-
-    def plot(self, duration: str):
-        if duration == "year":
-            mpf.plot(self.stock_year(), type='line')
-        elif duration == "month":
-            mpf.plot(self.stock_month(), type='candle')
-        elif duration == "week":
-            mpf.plot(self.stock_week(), type='candle')
-        elif duration == "day":
-            mpf.plot(self.stock_day(), type='candle')
+        return self.stock_duration(before_one_day.strftime("%Y.%m.%d"), recent_date_str)
 
     

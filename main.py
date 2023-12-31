@@ -12,6 +12,7 @@ import finance_research.utils as utils
 import finance_research.sise as sise
 import finance_research.stockDB as stockDB
 import finance_research.stockDF as stockDF
+import finance_research.stockGUI as stockGUI
 
 warnings.simplefilter('ignore')
 
@@ -26,7 +27,7 @@ utils.setup_logging()
 
 
 if __name__ == "__main__":
-    DEBUG_TEST_NUM = 1
+    DEBUG_TEST_NUM = 5
     stockDB = stockDB.StockDB()
 
     if args.mode == "init":
@@ -72,6 +73,9 @@ if __name__ == "__main__":
         for i in range(DEBUG_TEST_NUM):
             stockDB.create_table(ticker_list[i])
             stockDB.insert_data(ticker_list[i], res[i])
+            
+        gui = stockGUI.StockGUI(ticker_list[:DEBUG_TEST_NUM], res)
+        gui.run()
 
         ray.shutdown()
         logging.debug(f"Get all stock data execution time: {time.time() - tt}")
