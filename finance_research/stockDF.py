@@ -10,7 +10,7 @@ utils.setup_logging()
 
 class StockDF:
     def __init__(self, stock_data: tuple):
-        self.stock_data = stock_data
+        self.stock_data = stock_data # date, open, high, low, close, volume
 
         self.stock_df = None
         self.convert_to_df()

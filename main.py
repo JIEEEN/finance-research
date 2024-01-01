@@ -1,12 +1,9 @@
 import logging
 import pandas as pd
-import requests
 import ray
 import time
 import argparse
 import warnings
-
-from bs4 import BeautifulSoup
 
 import finance_research.utils as utils
 import finance_research.sise as sise
@@ -27,7 +24,7 @@ utils.setup_logging()
 
 
 if __name__ == "__main__":
-    stockDB = stockDB.StockDB()
+    _stock_db = stockDB.StockDB()
 
     if args.mode == "init":
         logging.info("Start to get All stock Data for initiate")
@@ -44,11 +41,11 @@ if __name__ == "__main__":
             res.extend(batch_res)
 
         for i in range(len(ticker_list)):
-            stockDB.create_table(ticker_list[i])
-            stockDB.insert_data(ticker_list[i], res[i])
+            _stock_db.create_table(ticker_list[i])
+            _stock_db.insert_data(ticker_list[i], res[i])
 
-        gui = stockGUI.StockGUI(ticker_list, res)
-        gui.run()
+        _gui = stockGUI.StockGUI(ticker_list, res)
+        _gui.run()
 
         ray.shutdown()
         logging.debug(f"Get all stock data execution time: {time.time() - tt}")
@@ -57,7 +54,7 @@ if __name__ == "__main__":
     elif args.mode == "debug":
         logging.info("Start to get All stock Data for initiate")
         tt = time.time()
-        DEBUG_TEST_NUM = 5
+        DEBUG_TEST_NUM = 1
         
         df = utils.read_excel('data/data.xlsx')
         ticker_list = utils.get_ticker_list(df)
@@ -75,11 +72,17 @@ if __name__ == "__main__":
         res = [utils.preprocess_data(data) for data in res]
 
         for i in range(DEBUG_TEST_NUM):
-            stockDB.create_table(ticker_list[i])
-            stockDB.insert_data(ticker_list[i], res[i])
+            _stock_db.create_table(ticker_list[i])
+            # TODO: if data already exist in DB, skip insert_data
+            # TODO: split mode for db and debug
+            _stock_db.insert_data(ticker_list[i], res[i])
             
-        gui = stockGUI.StockGUI(ticker_list[:DEBUG_TEST_NUM], ticker_names[:DEBUG_TEST_NUM], res)
-        gui.run()
+        db_res = []
+        for i in range(DEBUG_TEST_NUM):
+            db_res.append(_stock_db.get_stock_data_from_db(ticker_list[i]))
+            
+        _gui = stockGUI.StockGUI(_stock_db, ticker_list[:DEBUG_TEST_NUM], ticker_names[:DEBUG_TEST_NUM], db_res)
+        _gui.run()
 
         ray.shutdown()
         logging.debug(f"Get all stock data execution time: {time.time() - tt}")

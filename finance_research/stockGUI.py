@@ -6,15 +6,17 @@ import logging
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import finance_research.stockDF as stockDF
 class StockGUI:
-    def __init__(self, ticker_list: list, ticker_names: list, stock_datas: list):
+    def __init__(self, stock_db, ticker_list: list, ticker_names: list, stock_data: list):
         self.ticker_list = ticker_list
         self.ticker_names = ticker_names
+        
+        self.stock_db = stock_db
         self.stock_df = None
         
         self.w_width = 1000
         self.w_height = 650
         
-        self.stock_datas = stock_datas
+        self.stock_data = stock_data
         
         self.canvas_packed = {}
         
@@ -55,7 +57,7 @@ class StockGUI:
             choice = values['TICKER_LIST'][0].split(' ')[0]
             
             ticker_idx = self.ticker_list.index(choice)
-            stock_data = self.stock_datas[ticker_idx]
+            stock_data = self.stock_data[ticker_idx]
             
             if event in (sg.WIN_CLOSED, 'Exit'):
                 break
@@ -89,7 +91,7 @@ class StockGUI:
             elif duration == 'DAY':
                 return mpf.plot(self.stock_df.stock_day(), figsize=(2.8, 1.65), type='candle', style=style, volume=True, returnfig=True)
         
-        style = mpf.make_mpf_style(base_mpf_style='yahoo', rc={'font.size':4})
+        style = mpf.make_mpf_style(base_mpf_style='yahoo', rc={'font.size':3})
         fig, _ = plot_duration(duration, style)
         
         return fig
