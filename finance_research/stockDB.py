@@ -48,6 +48,11 @@ class StockDB:
                     );
                 """
                 cursor.execute(create_table_query)
+                
+                alter_table_query = f"""
+                    alter table c{ticker} add unique index(date);
+                """
+                cursor.execute(alter_table_query)
 
             self.conn.commit()
         except Exception as e:
@@ -63,7 +68,7 @@ class StockDB:
             with self.conn.cursor() as cursor:
                 for i in range(len(date)):
                     insert_data_query = f"""
-                        insert into c{ticker} values (%s, %s, %s, %s, %s, %s);
+                        insert ignore into c{ticker} values (%s, %s, %s, %s, %s, %s);
                     """
                     cursor.execute(insert_data_query, (date[i], open_[i], high[i], low[i], close[i], volume[i]))
             
@@ -103,3 +108,23 @@ class StockDB:
         stock_data = (date, open_, high, low, close, volume)
             
         return stock_data
+    
+
+    def get_ticker_list_from_db(self):
+        get_ticker_tables_query = """
+            show tables;
+        """
+        
+        try:
+            with self.conn.cursor() as cursor:
+                cursor.execute(get_ticker_tables_query)
+                
+                res = cursor.fetchall()
+                res = [data[0][1:] for data in res] # erase 'c' from table name
+                
+                return res
+        except Exception as e:
+            logging.error(f"Error occurred while get data from db: {e}")
+            self.conn.close()
+            sys.exit(-1)
+        
