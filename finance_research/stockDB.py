@@ -99,6 +99,7 @@ class StockDB:
         date, open_, high, low, close, volume = np.array([]), np.array([]), np.array([]), np.array([]), np.array([]), np.array([])
         
         date = np.append(date, np.array(self._get_stock_data_from_db('date', ticker), dtype=np.str_))
+        date = np.flip(date)
         open_ = np.append(open_, np.array(self._get_stock_data_from_db('open', ticker), dtype=np.float32))
         high = np.append(high, np.array(self._get_stock_data_from_db('high', ticker), dtype=np.float32))
         low = np.append(low, np.array(self._get_stock_data_from_db('low', ticker), dtype=np.float32))

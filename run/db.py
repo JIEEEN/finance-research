@@ -1,6 +1,7 @@
 import logging
 import time
 import ray
+import numpy as np
 
 import finance_research.utils as utils
 import finance_research.stockDB as stockDB
@@ -21,7 +22,7 @@ def run():
     db_res = []
     for ticker in ticker_list:
         db_res.append(_stock_db.get_stock_data_from_db(ticker))
-    
+        
     _gui = stockGUI.StockGUI(_stock_db, ticker_list, ticker_names[:len(ticker_list)], db_res)
     _gui.run()
     

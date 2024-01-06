@@ -20,8 +20,10 @@ class StockGUI:
         
         self.canvas_packed = {}
         
+        
     def set_stock_df(self, stock_df):
         self.stock_df = stock_df
+        
         
     def integrate_ticker_and_names(self):
         ticker_and_names = []
@@ -29,6 +31,7 @@ class StockGUI:
             ticker_and_names.append(ticker + ' ' + names)
         
         return ticker_and_names
+        
         
     def run(self):
         sg.theme('LightGray2')
@@ -91,6 +94,7 @@ class StockGUI:
             elif duration == 'DAY':
                 return mpf.plot(self.stock_df.stock_day(), figsize=(2.8, 1.65), type='candle', style=style, volume=True, returnfig=True)
         
+        print(self.stock_df.stock_week())
         style = mpf.make_mpf_style(base_mpf_style='yahoo', rc={'font.size':3})
         fig, _ = plot_duration(duration, style)
         
